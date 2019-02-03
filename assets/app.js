@@ -10,7 +10,9 @@ var config = {
 
 firebase.initializeApp(config);
 
-
+var now = moment().format("hh:mm");
+console.log(moment().format("hh:mm"));
+console.log(now);
 // Create a variable to reference the database.
 var database = firebase.database();
 console.log('Test01');
@@ -28,13 +30,43 @@ console.log(destination);
 console.log(departureTime);
 console.log(departureFrequency);
 
+//this creates an moment object (firstTrainTime) from a string (departureTime)
+var firstTrainTime = moment(departureTime, "HH:mm").subtract(1, "years");
+console.log(firstTrainTime);
+
+//this yields the difference between current time, which is captured as moment(), and the first train time.
+// var diff = moment().diff((firstTrainTime.diff(now, 'minutes')));
+var diff = moment().diff(moment(firstTrainTime), "minutes");
+console.log(diff);
+
+var minutesAway = diff % Number(departureFrequency);
+console.log("minutes away: ", minutesAway);
+
+// var nextArrrival = departureFrequency - minutesAway;
+var nextArrrival = now.add(minutesAway, 'minutes');
+console.log(nextArrrival);
+console.log("next arrival: ", nextArrrival);
+
+
+
 database.ref().push({
   name:trainName,
   destination:destination,
   time:departureTime,
-  frequency: departureFrequency
+  frequency: departureFrequency,
+  nextArrrival, nextArrrival,
+  minutesAway, minutesAway
 })
+
 console.log('test02')
+
+//empty imputs
+$('#name-input').val('');
+$('#destination-input').val('');
+$('#time-input').val('');
+$('#frequency-input').val('');
+
+
 
 });
 
@@ -46,7 +78,9 @@ console.log('test02')
     NewTableRow.append($('<td>' + dbObject.name + '</td>'));
     NewTableRow.append($('<td>' + dbObject.destination + '</td>'));
     NewTableRow.append($('<td>' + dbObject.frequency + '</td>'));
-    NewTableRow.append($('<td>' + dbObject.time + '</td>'));
+    // NewTableRow.append($('<td>' + dbObject.time + '</td>'));
+    NewTableRow.append($('<td>' + dbObject.nextArrrival + '</td>'));
+    NewTableRow.append($('<td>' + dbObject.minutesAway + '</td>'));
   
     $('tbody').append(NewTableRow);
   
