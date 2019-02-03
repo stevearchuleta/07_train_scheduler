@@ -10,52 +10,56 @@ var config = {
 
 firebase.initializeApp(config);
 
-var now = moment().format("hh:mm");
-console.log(moment().format("hh:mm"));
-console.log(now);
 // Create a variable to reference the database.
 var database = firebase.database();
 console.log('Test01');
 
-$('#add-train').on('click', function(){
+var now = moment().format("hh:mm");
+console.log(moment().format("hh:mm"));
+console.log(now);
+
+$('#add-train').on('click', function(event){
 event.preventDefault();
 
 var trainName = $('#name-input').val().trim();
 var destination = $('#destination-input').val().trim();
-var departureTime = $('#time-input').val().trim();
+var firstTrainTime = $('#time-input').val().trim();
 var departureFrequency = $('#frequency-input').val().trim();
 
 console.log(trainName);
 console.log(destination);
-console.log(departureTime);
+console.log(firstTrainTime);
 console.log(departureFrequency);
 
-//this creates an moment object (firstTrainTime) from a string (departureTime)
-var firstTrainTime = moment(departureTime, "HH:mm").subtract(1, "years");
-console.log(firstTrainTime);
+//the following statement creates an moment object (firstTrain) from a string (firstTrainTime). Subtracting 1 year prevents "a negative number output" in a future calulation (below).
+var firstTrain = moment(firstTrainTime, "HH:mm").subtract(1, "years");
+console.log(firstTrain);
 
-//this yields the difference between current time, which is captured as moment(), and the first train time.
-// var diff = moment().diff((firstTrainTime.diff(now, 'minutes')));
-var diff = moment().diff(moment(firstTrainTime), "minutes");
+//the following statement yields the difference between current time, which is captured as moment(), and the first train time.
+// this code did not work: var diff = moment().diff((firstTrain.diff(now, 'minutes')));
+var diff = moment().diff(moment(firstTrain), "minutes");
 console.log(diff);
 
-var minutesAway = diff % Number(departureFrequency);
+//calculate the remainder of diff mod departure frequency
+var modulusRemainder = diff % Number(departureFrequency);
 console.log("minutes away: ", minutesAway);
 
-// var nextArrrival = departureFrequency - minutesAway;
-var nextArrrival = now.add(minutesAway, 'minutes');
-console.log(nextArrrival);
-console.log("next arrival: ", nextArrrival);
+var minutesAway = departureFrequency - modulusRemainder;
+
+var nextArrival = moment().add(minutesAway, "minutes");
+console.log(nextArrival);
+
 
 
 
 database.ref().push({
   name:trainName,
   destination:destination,
-  time:departureTime,
+  time:firstTrainTime,
   frequency: departureFrequency,
-  nextArrrival, nextArrrival,
-  minutesAway, minutesAway
+  minutesAway: minutesAway,
+  nextArrival: nextArrival
+ 
 })
 
 console.log('test02')
